@@ -2,21 +2,19 @@ import zipfile
 
 
 class ImageBook:
-
     def __init__(self, fileName: str) -> None:
-        self.__zf: zipfile.ZipFile
+        self.__zf: zipfile.ZipFile = zipfile.ZipFile(fileName)
         self.__sheetFolder: str = "xl/worksheets/"
         self.__relayFolder: str = "xl/worksheets/_rels/"
         self.__mediaFolder: str = "xl/media/"
-        self.__zf = zipfile.ZipFile(fileName)
         # self.zf.extract(name, path='C:\\temp\\images')
 
     def __del__(self) -> None:
-        self.zf.close()
+        self.__zf.close()
 
     def getImageList(self) -> list[str]:
         res: list[str] = []
-        for name in self.zf.namelist():
+        for name in self.__zf.namelist():
             if name.startswith(self.__mediaFolder):
                 res.append(name)
         return res
@@ -26,7 +24,7 @@ class ImageBook:
 
     def getSheetPaths(self) -> list[str]:
         res: list[str] = []
-        for name in self.zf.namelist():
+        for name in self.__zf.namelist():
             if name.startswith(self.__sheetFolder):
                 if not name.startswith(self.__relayFolder):
                     res.append(name)
@@ -43,8 +41,8 @@ class ImageBook:
         return response
 
     def getRelayPaths(self) -> list[str]:
-        source:list[str] = self.getSheetNames
-        responcse:list[str] = []
+        source: list[str] = self.getSheetNames
+        responcse: list[str] = []
         for item in source:
             responcse.append(self.getRelayPathFromSheetName(item))
 
@@ -56,9 +54,15 @@ class ImageBook:
 
     # image/sheet/bookでclassを作って連携させる
 
+
+class Sheet:
+    def __init__(self, name: str) -> None:
+        pass
+
+
 if __name__ == "__main__":
     xl: ImageBook = ImageBook(
-        r"C:\Users\take\Documents\GitHub\xlocr_for_image_on_sheets\09390-JGr-Y含む-エクセル数値-210114.xlsx"
+        "./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx"
     )
     sheetlist: list[str] = xl.getSheetNames()
     for item in sheetlist:
