@@ -8,7 +8,6 @@ class ImageBook:
         self.__relayFolder: str = "xl/worksheets/_rels/"
         self.__mediaFolder: str = "xl/media/"
         self.__sheetfileExtension: str = ".xml"
-        # self.zf.extract(name, path='C:\\temp\\images')
 
     def __del__(self) -> None:
         self.__zf.close()
