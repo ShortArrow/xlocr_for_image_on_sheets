@@ -7,6 +7,7 @@ class ImageBook:
         self.__sheetFolder: str = "xl/worksheets/"
         self.__relayFolder: str = "xl/worksheets/_rels/"
         self.__mediaFolder: str = "xl/media/"
+        self.__sheetfileExtension: str = ".xml"
         # self.zf.extract(name, path='C:\\temp\\images')
 
     def __del__(self) -> None:
@@ -31,7 +32,9 @@ class ImageBook:
         return res
 
     def getSheetNameFromSheetPath(self, sheet: str) -> str:
-        return sheet.replace(self.__sheetFolder, "").replace(".xml", "")
+        return sheet.replace(self.__sheetFolder, "").replace(
+            self.__sheetfileExtension, ""
+        )
 
     def getSheetNames(self) -> list[str]:
         source: list[str] = self.getSheetPaths()
@@ -61,9 +64,7 @@ class Sheet:
 
 
 if __name__ == "__main__":
-    xl: ImageBook = ImageBook(
-        "./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx"
-    )
+    xl: ImageBook = ImageBook("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
     sheetlist: list[str] = xl.getSheetNames()
     for item in sheetlist:
         print(item)
