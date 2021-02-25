@@ -1,14 +1,14 @@
 import zipfile
 
 
-class XlImageGetter:
-    zf: zipfile.ZipFile
-    mediaFolder: str = "xl/media/"
-    sheetFolder: str = "xl/worksheets/"
-    relayFolder: str = "xl/worksheets/_rels/"
+class ImageBook:
 
     def __init__(self, fileName: str) -> None:
-        self.zf = zipfile.ZipFile(fileName)
+        self.__zf: zipfile.ZipFile
+        self.__sheetFolder: str = "xl/worksheets/"
+        self.__relayFolder: str = "xl/worksheets/_rels/"
+        self.__mediaFolder: str = "xl/media/"
+        self.__zf = zipfile.ZipFile(fileName)
         # self.zf.extract(name, path='C:\\temp\\images')
 
     def __del__(self) -> None:
@@ -17,7 +17,7 @@ class XlImageGetter:
     def getImageList(self) -> list[str]:
         res: list[str] = []
         for name in self.zf.namelist():
-            if name.startswith(self.mediaFolder):
+            if name.startswith(self.__mediaFolder):
                 res.append(name)
         return res
 
@@ -27,13 +27,13 @@ class XlImageGetter:
     def getSheetPaths(self) -> list[str]:
         res: list[str] = []
         for name in self.zf.namelist():
-            if name.startswith(self.sheetFolder):
-                if not name.startswith(self.relayFolder):
+            if name.startswith(self.__sheetFolder):
+                if not name.startswith(self.__relayFolder):
                     res.append(name)
         return res
 
     def getSheetNameFromSheetPath(self, sheet: str) -> str:
-        return sheet.replace(self.sheetFolder, "").replace(".xml", "")
+        return sheet.replace(self.__sheetFolder, "").replace(".xml", "")
 
     def getSheetNames(self) -> list[str]:
         source: list[str] = self.getSheetPaths()
@@ -49,7 +49,7 @@ class XlImageGetter:
             responcse.append(self.getRelayPathFromSheetName(item))
 
     def getRelayPathFromSheetName(self, sheetname: str) -> str:
-        return self.relayFolder + sheetname
+        return self.__relayFolder + sheetname
 
     def getImagePathsFromRelay():
         pass
@@ -57,7 +57,7 @@ class XlImageGetter:
     # image/sheet/bookでclassを作って連携させる
 
 if __name__ == "__main__":
-    xl: XlImageGetter = XlImageGetter(
+    xl: ImageBook = ImageBook(
         r"C:\Users\take\Documents\GitHub\xlocr_for_image_on_sheets\09390-JGr-Y含む-エクセル数値-210114.xlsx"
     )
     sheetlist: list[str] = xl.getSheetNames()
