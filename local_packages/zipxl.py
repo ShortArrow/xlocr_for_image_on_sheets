@@ -1,5 +1,8 @@
 import zipfile
 
+class Sheet:
+    def __init__(self, name: str) -> None:
+        self.name = name
 
 class ImageBook:
     def __init__(self, fileName: str) -> None:
@@ -11,6 +14,12 @@ class ImageBook:
 
     def __del__(self) -> None:
         self.__zf.close()
+
+    def Sheets(self) -> list[Sheet]:
+        res :list[Sheet]=[]
+        for item in self.getSheetNames():
+            res.append(Sheet(item))
+        return res
 
     def getImageList(self) -> list[str]:
         res: list[str] = []
@@ -56,10 +65,6 @@ class ImageBook:
 
     # image/sheet/bookでclassを作って連携させる
 
-
-class Sheet:
-    def __init__(self, name: str) -> None:
-        pass
 
 
 if __name__ == "__main__":

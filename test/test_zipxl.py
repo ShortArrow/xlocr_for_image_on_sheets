@@ -5,4 +5,6 @@ from logging import INFO, ERROR, getLogger
 logger = getLogger('test')
 
 def test_001():
-    assert True
+    xl: zipxl.ImageBook = zipxl.ImageBook("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
+    sheetlist: list[zipxl.Sheet] = xl.Sheets()
+    assert sheetlist[0].name == 'sheet4'
