@@ -2,7 +2,9 @@ import zipfile
 
 
 class Element:
-    def __init__(self, name: str, parent: "Element", root: "Element") -> None:
+    def __init__(
+        self, name: str, parent: "Element" = None, root: "Element" = None
+    ) -> None:
         self.name = name
         self.parent = parent
         self.root = root
@@ -60,16 +62,16 @@ class Sheet(Element):
         for time in range(Index + 1):
             startindex = str(relsdata).find('/image"', startindex + 1)
             if startindex == -1:
-                return Image(name="", parent=None, root=None)
-        startindex = str(relsdata).find('Target="', startindex)
+                return Image(name="", parent=self, root=self.parent)
+        startindex = str(relsdata).find('Target=', startindex)
         finalindex = str(relsdata).find('"/>', startindex)
         startindex = str(relsdata).rfind("/", startindex, finalindex) + 1
-        return Image(str(relsdata)[startindex:finalindex], parent=None, root=None)
+        return Image(str(relsdata)[startindex:finalindex], parent=self, root=self.parent)
 
 
 class ImageBook(Element):
     def __init__(self) -> None:
-        super().__init__(name="", parent=None, root=None)
+        super().__init__(name="")
         self.Sheets: list[Sheet] = []
 
     def open(self, fileName: str) -> None:
@@ -132,4 +134,4 @@ if __name__ == "__main__":
     xl.open("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
     for item in xl.Sheets:
         if len(item.Images):
-            print(item.Images[0].name,item.Images[1].name)
+            print(item.Images[0].name, item.Images[1].name)
