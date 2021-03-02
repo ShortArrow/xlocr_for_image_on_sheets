@@ -1,4 +1,7 @@
 import zipfile
+from PIL import Image as ImagePIL
+import PIL
+import io
 
 
 class Element:
@@ -31,7 +34,9 @@ class Element:
 
 
 class Image(Element):
-    pass
+    def Canvas() -> ImagePIL.Image:
+        super().name
+        pass
 
 
 class Sheet(Element):
