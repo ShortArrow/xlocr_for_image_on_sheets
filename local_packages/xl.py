@@ -6,7 +6,7 @@ from xlwings.main import Pictures
 from PIL import ImageGrab
 import time
 import win32clipboard
-from ctypes import WinDLL, windll
+from ctypes import WinDLL, set_last_error, windll
 
 # import pywin
 # import pyocr
@@ -27,7 +27,7 @@ class xlimg:
         pic.api.Copy()
         myimage: Image.Image = ImageGrab.grabclipboard()
         return self.getStringFromImage(myimage)
-    
+
     def ClearClip(self):
         if win32clipboard.OpenClipboard(None):
             win32clipboard.EmptyClipboard()
@@ -48,7 +48,7 @@ class xlimg:
             time.sleep(0.1)
             myimage: Any = ImageGrab.grabclipboard()
             # myimage: Any = self.getClip()
-            if isinstance(myimage,Image.Image):
+            if isinstance(myimage, Image.Image):
                 resultImageList.append(myimage)
         return resultImageList
 
@@ -65,3 +65,6 @@ class xlimg:
         for item in imageList:
             stringList.append(self.getStringFromImage(item))
         return stringList
+
+    def __del__(self) -> None:
+        self.wb.close()
