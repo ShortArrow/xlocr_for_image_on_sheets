@@ -8,5 +8,5 @@ testfile = r'./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx'
 def test_001():
     myxl: xl.xlimg = xl.xlimg(testfile)
     res = myxl.getxlimages()
-    myxl.close()
+    myxl.wb.close()
     assert "SCRIBE" in res

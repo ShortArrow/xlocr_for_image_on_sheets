@@ -1,6 +1,5 @@
 import zipfile
-from PIL import Image as ImagePIL
-import PIL
+from PIL import Image
 import io
 
 
@@ -33,28 +32,31 @@ class Element:
         return ".xml.rels"
 
 
-class Image(Element):
-    def Canvas() -> ImagePIL.Image:
-        super().name
-        pass
+class Picture(Element):
+    def Canvas(self) -> Image.Image:
+        z = zipfile.ZipFile(self.root.name)
+        img:Image.Image = Image.open(io.BytesIO(z.read(self.mediaFolder +  self.name)))
+        z.close()
+        # img.show()
+        return img
 
 
 class Sheet(Element):
     def __init__(self, name: str, parent: Element, root: Element) -> None:
         super().__init__(name=name, parent=parent, root=root)
-        self.Images = self.__Images()
+        self.Pictures = self.__Pictures()
 
-    def __Images(self) -> list[Image]:
-        res: list[Image] = []
-        buf: Image = None
+    def __Pictures(self) -> list[Picture]:
+        res: list[Picture] = []
+        buf: Picture = None
         while True:
-            buf = self.__Image(len(res))
+            buf = self.__Pciture(len(res))
             if buf.name == "":
                 break
             res.append(buf)
         return res
 
-    def __Image(self, Index: int) -> Image:
+    def __Pciture(self, Index: int) -> Picture:
         try:
             f = self.root.zf.open(
                 self.relayFolder + self.name + self.relayfileExtension, "r"
@@ -67,11 +69,13 @@ class Sheet(Element):
         for time in range(Index + 1):
             startindex = str(relsdata).find('/image"', startindex + 1)
             if startindex == -1:
-                return Image(name="", parent=self, root=self.parent)
-        startindex = str(relsdata).find('Target=', startindex)
+                return Picture(name="", parent=self, root=self.parent)
+        startindex = str(relsdata).find("Target=", startindex)
         finalindex = str(relsdata).find('"/>', startindex)
         startindex = str(relsdata).rfind("/", startindex, finalindex) + 1
-        return Image(str(relsdata)[startindex:finalindex], parent=self, root=self.parent)
+        return Picture(
+            str(relsdata)[startindex:finalindex], parent=self, root=self.parent
+        )
 
 
 class ImageBook(Element):
@@ -137,6 +141,5 @@ class ImageBook(Element):
 if __name__ == "__main__":
     xl: ImageBook = ImageBook()
     xl.open("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
-    for item in xl.Sheets:
-        if len(item.Images):
-            print(item.Images[0].name, item.Images[1].name)
+    img=xl.Sheets[0].Pictures[0].Canvas()
+    img.show()

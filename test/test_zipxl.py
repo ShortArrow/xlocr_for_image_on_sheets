@@ -1,3 +1,4 @@
+import PIL
 import pytest
 from local_packages import zipxl
 from logging import INFO, ERROR, getLogger
@@ -13,4 +14,10 @@ def test_getSheetName():
 def test_getImageName():
     xl: zipxl.ImageBook = zipxl.ImageBook()
     xl.open(testfile)
-    assert xl.Sheets[0].Images[0].name == 'image23.emf'
+    assert xl.Sheets[0].Pictures[0].name == 'image23.emf'
+
+def test_getImage():
+    xl:zipxl.ImageBook = zipxl.ImageBook()
+    xl.open(testfile)
+    img = xl.Sheets[0].Pictures[0].Canvas()
+    assert True
