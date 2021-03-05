@@ -1,19 +1,24 @@
-import xlwings as xw
-from typing import List
+import pylightxl
 from local_packages import fcon
 from local_packages import xl
 
-defaultFileDirctory: str = r"C:\Users\take\Documents\GitHub\xlocr_for_image_on_sheets"
+defaultFileDirctory: str = r"./Downloads/"
 
 if __name__ == "__main__":
     targetXlFileFullPath = fcon.openXlFile(defaultFileDirctory)
     print(targetXlFileFullPath)
-    mydata: xl.xlimg = xl.xlimg(targetXlFileFullPath)
-    RecgnitionList: List[str] = []
-    item: xw.Sheet
-    for item in mydata.wb.sheets:
-        RecgnitionList = mydata.getStringsFromSheet(item)
-        print(item.name + ":")
-        if RecgnitionList != None:
-            for RecgnitionString in RecgnitionList:
-                print("    - " + RecgnitionString)
+    mydata: pylightxl.Database = pylightxl.readxl(targetXlFileFullPath)
+    for item in mydata.ws_names:
+        col = mydata.ws(item).col(37)
+        pass
+        RemarkCounter = 0
+        for cell in col:
+            if "SCRIBE LINE" == cell:
+                RemarkCounter += 1
+        print(item,RemarkCounter)
+
+# HOLE CTR
+# SCRIBE LINE
+# MEASURING POINT
+# SHIM
+# CP
