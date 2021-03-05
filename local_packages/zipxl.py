@@ -2,6 +2,7 @@ from types import DynamicClassAttribute
 import zipfile
 from PIL import Image
 import io
+import re
 
 
 class Element:
@@ -74,7 +75,7 @@ class Sheet(Element):
         relsdata: str = str(relsdata)
         startindex = str(relsdata).find('/drawing"', 1)
         if startindex == -1:
-            return Picture(name="", parent=self, root=self.parent)
+            return []
         startindex = str(relsdata).find("Target=", startindex)
         finalindex = str(relsdata).find('"/>', startindex)
         startindex = str(relsdata).rfind("/", startindex, finalindex) + 1
@@ -109,9 +110,7 @@ class Sheet(Element):
         startindex = relsdata.find("Target=", startindex)
         finalindex = relsdata.find('"/>', startindex)
         startindex = relsdata.rfind("/", startindex, finalindex) + 1
-        return Picture(
-            relsdata[startindex:finalindex], parent=self, root=self.parent
-        )
+        return Picture(relsdata[startindex:finalindex], parent=self, root=self.parent)
 
 
 class ImageBook(Element):
@@ -134,7 +133,7 @@ class ImageBook(Element):
             res.append(
                 Sheet(
                     name=item,
-                    displayName=DisplayNames[len(res)],
+                    displayName=DisplayNames[int(re.sub(r"\D", "", item)) - 1],
                     parent=self,
                     root=self,
                 )
@@ -208,7 +207,8 @@ class ImageBook(Element):
 if __name__ == "__main__":
     xl: ImageBook = ImageBook()
     xl.open("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
-    SheetNum = 13
+    SheetNum = 2
     print(xl.Sheets[SheetNum].displayName)
     for item in xl.Sheets[SheetNum].Pictures:
         item.Image().show()
+    print()
