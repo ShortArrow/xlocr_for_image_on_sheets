@@ -1,4 +1,5 @@
 import pylightxl
+from local_packages import zipxl
 from local_packages import fcon
 from local_packages import xl
 
@@ -8,6 +9,7 @@ if __name__ == "__main__":
     targetXlFileFullPath = fcon.openXlFile(defaultFileDirctory)
     print(targetXlFileFullPath)
     mydata: pylightxl.Database = pylightxl.readxl(targetXlFileFullPath)
+    zipdata: zipxl.ImageBook = zipxl.ImageBook(targetXlFileFullPath)
     for item in mydata.ws_names:
         col = mydata.ws(item).col(37)
         pass
