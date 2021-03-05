@@ -25,6 +25,10 @@ class Element:
         return "xl/worksheets/_rels/"
 
     @property
+    def drawingFolder(self) -> str:
+        return "xl/drawings/_rels/"
+
+    @property
     def mediaFolder(self) -> str:
         return "xl/media/"
 
@@ -34,6 +38,10 @@ class Element:
 
     @property
     def relayfileExtension(self) -> str:
+        return ".xml.rels"
+
+    @property
+    def drawingfileExtension(self) -> str:
         return ".xml.rels"
 
 
@@ -55,6 +63,23 @@ class Sheet(Element):
         self.Pictures = self.__Pictures()
 
     def __Pictures(self) -> list[Picture]:
+        try:
+            f = self.root.zf.open(
+                self.relayFolder + self.name + self.relayfileExtension, "r"
+            )
+            relsdata: str = f.read(-1)
+            f.close()
+        except KeyError:
+            relsdata: str = ""
+        relsdata: str = str(relsdata)
+        startindex = str(relsdata).find('/drawing"', 1)
+        if startindex == -1:
+            return Picture(name="", parent=self, root=self.parent)
+        startindex = str(relsdata).find("Target=", startindex)
+        finalindex = str(relsdata).find('"/>', startindex)
+        startindex = str(relsdata).rfind("/", startindex, finalindex) + 1
+        finalindex = str(relsdata).rfind(".", startindex, finalindex)
+        self.drawingfilename = relsdata[startindex:finalindex]
         res: list[Picture] = []
         buf: Picture = None
         while True:
@@ -68,22 +93,24 @@ class Sheet(Element):
     def __Pciture(self, Index: int) -> Picture:
         try:
             f = self.root.zf.open(
-                self.relayFolder + self.name + self.relayfileExtension, "r"
+                self.drawingFolder + self.drawingfilename + self.drawingfileExtension,
+                "r",
             )
             relsdata: str = f.read(-1)
             f.close()
         except KeyError:
             relsdata: str = ""
+        relsdata: str = str(relsdata)
         startindex: int = 1
         for time in range(Index + 1):
-            startindex = str(relsdata).find('/image"', startindex + 1)
+            startindex = relsdata.find('/image"', startindex + 1)
             if startindex == -1:
                 return Picture(name="", parent=self, root=self.parent)
-        startindex = str(relsdata).find("Target=", startindex)
-        finalindex = str(relsdata).find('"/>', startindex)
-        startindex = str(relsdata).rfind("/", startindex, finalindex) + 1
+        startindex = relsdata.find("Target=", startindex)
+        finalindex = relsdata.find('"/>', startindex)
+        startindex = relsdata.rfind("/", startindex, finalindex) + 1
         return Picture(
-            str(relsdata)[startindex:finalindex], parent=self, root=self.parent
+            relsdata[startindex:finalindex], parent=self, root=self.parent
         )
 
 
@@ -104,7 +131,14 @@ class ImageBook(Element):
         res: list[Sheet] = []
         DisplayNames: list[str] = self.getDisplayNames()
         for item in self.getSheetNames():
-            res.append(Sheet(name=item,displayName=DisplayNames[len(res)], parent=self, root=self))
+            res.append(
+                Sheet(
+                    name=item,
+                    displayName=DisplayNames[len(res)],
+                    parent=self,
+                    root=self,
+                )
+            )
         return res
 
     def getDisplayNames(self) -> list[str]:
@@ -174,8 +208,7 @@ class ImageBook(Element):
 if __name__ == "__main__":
     xl: ImageBook = ImageBook()
     xl.open("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
-    SheetNum=1
+    SheetNum = 1
     print(xl.Sheets[SheetNum].displayName)
     for item in xl.Sheets[SheetNum].Pictures:
         item.Canvas().show()
-    
