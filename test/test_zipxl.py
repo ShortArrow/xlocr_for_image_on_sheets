@@ -19,5 +19,5 @@ def test_getImageName():
 def test_getImage():
     xl:zipxl.ImageBook = zipxl.ImageBook()
     xl.open(testfile)
-    img = xl.Sheets[0].Pictures[0].Canvas()
+    img = xl.Sheets[0].Pictures[0].Image()
     assert True

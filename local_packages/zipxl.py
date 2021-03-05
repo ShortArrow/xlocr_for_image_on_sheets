@@ -46,7 +46,7 @@ class Element:
 
 
 class Picture(Element):
-    def Canvas(self) -> Image.Image:
+    def Image(self) -> Image.Image:
         z = zipfile.ZipFile(self.root.name)
         img: Image.Image = Image.open(io.BytesIO(z.read(self.mediaFolder + self.name)))
         z.close()
@@ -208,7 +208,7 @@ class ImageBook(Element):
 if __name__ == "__main__":
     xl: ImageBook = ImageBook()
     xl.open("./downloads/09390-JGr-Y含む-エクセル数値-210114.xlsx")
-    SheetNum = 1
+    SheetNum = 13
     print(xl.Sheets[SheetNum].displayName)
     for item in xl.Sheets[SheetNum].Pictures:
-        item.Canvas().show()
+        item.Image().show()
