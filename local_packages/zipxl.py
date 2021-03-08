@@ -84,14 +84,14 @@ class Sheet(Element):
         res: list[Picture] = []
         buf: Picture = None
         while True:
-            buf = self.__Pciture(len(res))
+            buf = self.__Picture(len(res))
             if buf.name == "":
                 break
             res.append(buf)
         # todo drawing relation
         return res
 
-    def __Pciture(self, Index: int) -> Picture:
+    def __Picture(self, Index: int) -> Picture:
         try:
             f = self.root.zf.open(
                 self.drawingFolder + self.drawingfilename + self.drawingfileExtension,
