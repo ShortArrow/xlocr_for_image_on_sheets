@@ -25,11 +25,11 @@ class remark(Enum):
     Cp = "CP"
 
 
-def getStringFromImage(inputImage: Image.Image) -> str:
+def getLinesFromImage(inputImage: Image.Image) -> list[str]:
     custom_oem_psm_config = r'--psm 6 -l eng -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"'
     try:
         # nolook so small image
-        if inputImage.size[0]*inputImage.size[1]<=1600:
+        if inputImage.size[0] * inputImage.size[1] <= 1600:
             result: str = ""
             return result
         result: str = pytesseract.image_to_string(
@@ -37,7 +37,14 @@ def getStringFromImage(inputImage: Image.Image) -> str:
         )
     except TypeError:
         result: str = ""
-    return result
+    return result.split("\n")
+
+
+def hasRemark(inputString: str) -> bool:
+    for target in remark:
+        if target.value in inputString:
+            return True
+    return False
 
 
 if __name__ == "__main__":
@@ -57,13 +64,12 @@ if __name__ == "__main__":
             if targetSheet.displayName == targetSheetname:
                 PictureCount = len(targetSheet.Pictures)
                 for item in targetSheet.Pictures:
-                    buf=getStringFromImage(item.Image())
-                    if ""!=buf:
-                        print(getStringFromImage(item.Image()))
-                break
+                    buf: list[str] = getLinesFromImage(item.Image())
+                    for line in buf:
+                        if hasRemark(line):
+                            print(line)
+            break # displayName is appear only once
         print(targetSheetname, RemarkCounter, PictureCount)
-
-    print()
 
 # HOLE CTR
 # SCRIBE LINE
