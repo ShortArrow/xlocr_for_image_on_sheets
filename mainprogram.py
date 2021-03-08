@@ -26,18 +26,22 @@ class remark(Enum):
 
 
 def getLinesFromImage(inputImage: Image.Image) -> list[str]:
-    custom_oem_psm_config = r'--psm 6 -l eng -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"'
+    custom_oem_psm_config = r'-c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789" --psm 6'
     try:
         # nolook so small image
         if inputImage.size[0] * inputImage.size[1] <= 1600:
             result: str = ""
             return result
         result: str = pytesseract.image_to_string(
-            inputImage, config=custom_oem_psm_config
+            inputImage,lang="eng", config=custom_oem_psm_config
         )
     except TypeError:
         result: str = ""
     return result.split("\n")
+
+
+def ocr(inputImage: Image.Image) -> list[str]:
+    pass
 
 
 def hasRemark(inputString: str) -> bool:
@@ -63,12 +67,16 @@ if __name__ == "__main__":
         for targetSheet in zipdata.Sheets:
             if targetSheet.displayName == targetSheetname:
                 PictureCount = len(targetSheet.Pictures)
-                for item in targetSheet.Pictures:
-                    buf: list[str] = getLinesFromImage(item.Image())
+                for index, item in enumerate(targetSheet.Pictures):
+                    buf: list[str] = getLinesFromImage(item.Image().convert("LA"))
+                    # if targetSheet.displayName=="203-3":
+                        # item.Image().convert("LA").show()
+                    print(str(index)+":", end="")
                     for line in buf:
                         if hasRemark(line):
-                            print(line)
-            break # displayName is appear only once
+                            print(line, end="")
+                    print()
+                break # displayName is appear only once
         print(targetSheetname, RemarkCounter, PictureCount)
 
 # HOLE CTR
