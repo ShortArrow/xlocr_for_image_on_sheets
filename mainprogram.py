@@ -3,6 +3,9 @@ from local_packages import zipxl
 from local_packages import fcon
 from local_packages import xl
 from enum import Enum
+import pytesseract
+from PIL import Image
+import os
 
 defaultFileDirctory: str = r"./Downloads/"
 remarkDict: dict = {
@@ -22,6 +25,21 @@ class remark(Enum):
     Cp = "CP"
 
 
+def getStringFromImage(inputImage: Image.Image) -> str:
+    custom_oem_psm_config = r'--psm 6 -l eng -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"'
+    try:
+        # nolook so small image
+        if inputImage.size[0]*inputImage.size[1]<=1600:
+            result: str = ""
+            return result
+        result: str = pytesseract.image_to_string(
+            inputImage, config=custom_oem_psm_config
+        )
+    except TypeError:
+        result: str = ""
+    return result
+
+
 if __name__ == "__main__":
     targetXlFileFullPath = fcon.openXlFile(defaultFileDirctory)
     print(targetXlFileFullPath)
@@ -38,6 +56,10 @@ if __name__ == "__main__":
         for targetSheet in zipdata.Sheets:
             if targetSheet.displayName == targetSheetname:
                 PictureCount = len(targetSheet.Pictures)
+                for item in targetSheet.Pictures:
+                    buf=getStringFromImage(item.Image())
+                    if ""!=buf:
+                        print(getStringFromImage(item.Image()))
                 break
         print(targetSheetname, RemarkCounter, PictureCount)
 
