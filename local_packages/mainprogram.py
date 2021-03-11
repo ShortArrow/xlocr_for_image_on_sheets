@@ -79,11 +79,15 @@ if __name__ == "__main__":
         buflist.append(targetSheetname)
         col = mydata.ws(targetSheetname).col(remarkColumn)
         bufdic: dict = {}
-        RemarkCounter = 0
         for cell in col:
-            if remark.ScribeLine.value == cell:
-                RemarkCounter += 1
-        buflist.append(RemarkCounter)
+            for targetRemark in remark:
+                if cell == targetRemark.value:
+                    if bufdic.__contains__(targetRemark):
+                        bufdic[targetRemark] += 1
+                    else:
+                        bufdic[targetRemark] = 1
+        buflist.append(bufdic)
+        bufdic={}
         PictureCount = 0
         for targetSheet in myBook.Sheets:
             if targetSheet.displayName == targetSheetname:
@@ -93,15 +97,15 @@ if __name__ == "__main__":
                     for line in buf:
                         containRemark, hitname = hasRemark(line)
                         if containRemark:
-                            if bufdic.keys().__contains__(hitname.value):
-                                bufdic[hitname.value] += 1
+                            if bufdic.keys().__contains__(hitname):
+                                bufdic[hitname] += 1
                             else:
-                                bufdic[hitname.value] = 1
+                                bufdic[hitname] = 1
                 buflist.append(bufdic)
                 break  # displayName is appear only once
         resData.append(buflist)
     with open(OutputFileDirectory, "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["SheetName","Remarks","Pictures","OCR"])
+        writer.writerow(["SheetName", "Remarks", "Pictures", "OCR"])
         for row in resData:
             writer.writerow(row)
