@@ -69,6 +69,8 @@ def hasRemark(inputString: str) -> bool:
 
 if __name__ == "__main__":
     targetXlFileFullPath = fcon.openXlFile(defaultFileDirctory)
+    if targetXlFileFullPath =="":
+        exit()
     print(targetXlFileFullPath)
     mydata: pylightxl.Database = pylightxl.readxl(targetXlFileFullPath)
     myBook: zipxl.ImageBook = zipxl.ImageBook()
@@ -87,7 +89,7 @@ if __name__ == "__main__":
                     else:
                         bufdic[targetRemark] = 1
         buflist.append(bufdic)
-        bufdic={}
+        bufdic = {}
         PictureCount = 0
         for targetSheet in myBook.Sheets:
             if targetSheet.displayName == targetSheetname:
@@ -104,8 +106,28 @@ if __name__ == "__main__":
                 buflist.append(bufdic)
                 break  # displayName is appear only once
         resData.append(buflist)
-    with open(OutputFileDirectory, "w") as f:
+    with open(OutputFileDirectory, "w", newline="\n") as f:
         writer = csv.writer(f)
-        writer.writerow(["SheetName", "Remarks", "Pictures", "OCR"])
+        columnHeaders = []
+        columnHeaders.append("SheetName")
+        for targetRemark in remark:
+            columnHeaders.append(targetRemark.value + "_Remark")
+        columnHeaders.append("Pictures")
+        for targetRemark in remark:
+            columnHeaders.append(targetRemark.value + "_OCR")
+        writer.writerow(columnHeaders)
         for row in resData:
-            writer.writerow(row)
+            makingline=[]
+            makingline.append(row[0])
+            for targetRemark in remark:
+                try:
+                    makingline.append(row[1][targetRemark])
+                except KeyError:
+                    makingline.append("")
+            makingline.append(row[2])
+            for targetRemark in remark:
+                try:
+                    makingline.append(row[3][targetRemark])
+                except KeyError:
+                    makingline.append("")
+            writer.writerow(makingline)
