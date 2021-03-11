@@ -21,6 +21,13 @@ class remark(Enum):
     Cp = "CP"
 
 
+class ColumnTitle(Enum):
+    SheetName = "SheetName"
+    Remark = "Remark"
+    Pictures = "Pictures"
+    Ocr = "OCR"
+
+
 class checkDictionary:
     def __init__(self, mark: remark) -> None:
         self.__mark = mark
@@ -69,16 +76,16 @@ def hasRemark(inputString: str) -> bool:
 
 if __name__ == "__main__":
     targetXlFileFullPath = fcon.openXlFile(defaultFileDirctory)
-    if targetXlFileFullPath =="":
+    if targetXlFileFullPath == "":
         exit()
     print(targetXlFileFullPath)
     mydata: pylightxl.Database = pylightxl.readxl(targetXlFileFullPath)
     myBook: zipxl.ImageBook = zipxl.ImageBook()
     myBook.open(targetXlFileFullPath)
-    resData: list[list] = []
+    resData: list[dict] = []
     for targetSheetname in mydata.ws_names:
-        buflist: list = []
-        buflist.append(targetSheetname)
+        buflist: dict = {}
+        buflist[ColumnTitle.SheetName] = targetSheetname
         col = mydata.ws(targetSheetname).col(remarkColumn)
         bufdic: dict = {}
         for cell in col:
@@ -88,12 +95,12 @@ if __name__ == "__main__":
                         bufdic[targetRemark] += 1
                     else:
                         bufdic[targetRemark] = 1
-        buflist.append(bufdic)
+        buflist[ColumnTitle.Remark] = bufdic
         bufdic = {}
         PictureCount = 0
         for targetSheet in myBook.Sheets:
             if targetSheet.displayName == targetSheetname:
-                buflist.append(len(targetSheet.Pictures))
+                buflist[ColumnTitle.Pictures] = len(targetSheet.Pictures)
                 for index, item in enumerate(targetSheet.Pictures):
                     buf: list[str] = getLinesFromImage(item.Image().convert("LA"))
                     for line in buf:
@@ -103,31 +110,31 @@ if __name__ == "__main__":
                                 bufdic[hitname] += 1
                             else:
                                 bufdic[hitname] = 1
-                buflist.append(bufdic)
+                buflist[ColumnTitle.Ocr] = bufdic
                 break  # displayName is appear only once
         resData.append(buflist)
     with open(OutputFileDirectory, "w", newline="\n") as f:
         writer = csv.writer(f)
         columnHeaders = []
-        columnHeaders.append("SheetName")
+        columnHeaders.append(ColumnTitle.SheetName.value)
         for targetRemark in remark:
-            columnHeaders.append(targetRemark.value + "_Remark")
-        columnHeaders.append("Pictures")
+            columnHeaders.append(targetRemark.value + "_" + ColumnTitle.Remark.value)
+        columnHeaders.append(ColumnTitle.Pictures.value)
         for targetRemark in remark:
-            columnHeaders.append(targetRemark.value + "_OCR")
+            columnHeaders.append(targetRemark.value + "_" + ColumnTitle.Ocr.value)
         writer.writerow(columnHeaders)
         for row in resData:
-            makingline=[]
-            makingline.append(row[0])
+            makingline = []
+            makingline.append(row[ColumnTitle.SheetName])
             for targetRemark in remark:
                 try:
-                    makingline.append(row[1][targetRemark])
+                    makingline.append(row[ColumnTitle.Remark][targetRemark])
                 except KeyError:
-                    makingline.append("")
-            makingline.append(row[2])
+                    makingline.append(0)
+            makingline.append(row[ColumnTitle.Pictures])
             for targetRemark in remark:
                 try:
-                    makingline.append(row[3][targetRemark])
+                    makingline.append(row[ColumnTitle.Ocr][targetRemark])
                 except KeyError:
-                    makingline.append("")
+                    makingline.append(0)
             writer.writerow(makingline)
